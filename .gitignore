@@ -1,9 +1,10 @@
 # Virtual environments
 venv/
-
+node_modules/
+guidelines/
 # Environment files
 .env
-
+dist/
 # ChromaDB
 chromadb/
 
