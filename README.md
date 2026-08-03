@@ -1,88 +1,68 @@
-# 🧠 Second Brain for Developers
-
-Chat with your own codebase. Add any GitHub repo and ask questions about your past code — get instant answers with exact file references.
-
----
-
-## 🤔 The Problem
+# 🧠 SecondBrain
 
 > *"I solved this before... but which project? Which file?"*
 
-Every developer wastes time searching through old repos. Second Brain fixes this.
+Every developer wastes time searching through old repos. SecondBrain fixes this — connect your GitHub repos and chat with your entire codebase using AI.
 
 ---
 
-## ✨ How it Works
+## The Problem
 
-```
-Add GitHub Repo URL
-        ↓
-App fetches + chunks all code files
-        ↓
-Stored in ChromaDB as embeddings
-        ↓
-Ask anything about your code
-        ↓
-Get answer with exact file references
-```
+You have built 10+ projects over the years. You know you solved authentication somewhere, handled file uploads in another project, set up a WebSocket in another. But finding it means opening GitHub, searching through repos, reading files one by one.
+
+SecondBrain indexes all your past code and lets you ask questions naturally — like talking to a colleague who has read every line you have ever written.
 
 ---
 
-## 🛠️ Tech Stack
+## How it Works
+
+Connect your GitHub account → select repos to index → SecondBrain reads and understands your code → ask anything in plain English → get answers with exact file references.
+
+No more searching. No more context switching. Just ask.
+
+---
+
+## Tech Stack
 
 | | |
 |---|---|
 | Backend | Python + FastAPI |
-| Vector DB | ChromaDB |
-| LLM | NVIDIA Nemotron |
-| GitHub | GitHub REST API |
-| HTTP | HTTPX (async) |
+| Vector Database | ChromaDB |
+| LLM | NVIDIA Nemotron via OpenAI-compatible API |
+| Authentication | GitHub OAuth + JWT |
+| Database | PostgreSQL + SQLAlchemy |
+| Frontend | React + TypeScript + Tailwind CSS |
 
 ---
 
-## 🚀 Quick Start
+## Getting Started
+
+**Requirements:** Python 3.10+, PostgreSQL, GitHub account, NVIDIA API key
 
 ```bash
-# Install
+# Clone and setup
+git clone https://github.com/yourusername/secondbrain
+cd secondbrain/backend
+
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 
-# Add secrets
+# Configure
 cp .env.example .env
-# Fill in GITHUB_TOKEN and NVIDIA_API_KEY
 
 # Run
 uvicorn main:app --reload
 ```
 
----
-
-## 📡 API
-
+**.env:**
+```bash
+DATABASE_URL=postgresql://user:password@localhost:5432/secondbrain
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+NVIDIA_API_KEY=your_nvidia_key
+JWT_SECRET=your_jwt_secret
 ```
-POST /fetch-repo   → index a GitHub repo
-POST /search       → ask a question
-POST /sync-repo    → re-index updated repo
-```
-
-**Example:**
-```json
-POST /search
-{ "query": "how did I handle authentication?" }
-
-Response:
-{
-  "answer": "In backend/auth.py you used JWT...",
-  "sources": ["backend/auth.py", "backend/models.py"]
-}
-```
----
-
-## 🔮 Coming Soon
-
-- React frontend
-- PostgreSQL for search history  
-- GitHub OAuth
-- Docker + deployment
 
 ---
 
