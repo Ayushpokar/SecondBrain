@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, GitBranch, Globe, Search, X } from "lucide-react";
-import type { Repo } from "../../types";
+// import type { Repo } from "../../types"; // You can keep this if you updated the type to match your DB
 
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: "#3b82f6", Rust: "#f97316", Python: "#a855f7", Go: "#06b6d4",
@@ -8,7 +8,7 @@ const LANGUAGE_COLORS: Record<string, string> = {
 };
 
 type RepoDropdownProps = {
-  repos: Repo[];
+  repos: any[]; // Using any[] temporarily in case the DB structure differs slightly from the GitHub API structure
   selected: string[];
   onToggle: (name: string) => void;
   isDark: boolean;
@@ -19,7 +19,14 @@ export function RepoDropdown({ repos, selected, onToggle, isDark }: RepoDropdown
   const [query, setQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const filtered = repos.filter(repo => repo.connected && (!query || repo.name.toLowerCase().includes(query.toLowerCase())));
+  
+  // 1. Removed `repo.connected` because these are already indexed/connected repos!
+  // 2. Used `repo.name || repo.repo_name` to safely handle DB vs GitHub API naming
+  const filtered = repos.filter(repo => {
+    const repoName = repo.name || repo.repo_name || "";
+    return !query || repoName.toLowerCase().includes(query.toLowerCase());
+  });
+
   const bg = isDark ? "#1e1e25" : "#ffffff";
   const border = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
   const hover = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
@@ -46,25 +53,46 @@ export function RepoDropdown({ repos, selected, onToggle, isDark }: RepoDropdown
         <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{selected.length === 0 ? "repos" : selected.length === 1 ? selected[0] : `${selected.length} repos`}</span>
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="absolute bottom-full left-0 mb-2 w-72 rounded-xl overflow-hidden z-50" style={{ background: bg, border: `1px solid ${border}`, boxShadow: isDark ? "0 20px 60px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.15)" }}>
-        <div className="flex items-center gap-2 px-3 py-2.5" style={{ borderBottom: `1px solid ${border}` }}>
-          <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: muted }} />
-          <input ref={inputRef} value={query} onChange={event => setQuery(event.target.value)} placeholder="Search repos..." className="flex-1 text-sm outline-none bg-transparent" style={{ color: text, fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }} />
-          {query && <button onClick={() => setQuery("")} style={{ color: muted }}><X className="w-3.5 h-3.5" /></button>}
+      
+      {open && (
+        <div className="absolute bottom-full left-0 mb-2 w-72 rounded-xl overflow-hidden z-50" style={{ background: bg, border: `1px solid ${border}`, boxShadow: isDark ? "0 20px 60px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.15)" }}>
+          <div className="flex items-center gap-2 px-3 py-2.5" style={{ borderBottom: `1px solid ${border}` }}>
+            <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: muted }} />
+            <input ref={inputRef} value={query} onChange={event => setQuery(event.target.value)} placeholder="Search repos..." className="flex-1 text-sm outline-none bg-transparent" style={{ color: text, fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }} />
+            {query && <button onClick={() => setQuery("")} style={{ color: muted }}><X className="w-3.5 h-3.5" /></button>}
+          </div>
+          <div className="max-h-56 overflow-y-auto scrollbar-hide py-1">
+            {filtered.length === 0 ? (
+              <p className="px-4 py-5 text-xs text-center" style={{ color: muted, fontFamily: "monospace" }}>No repos found</p>
+            ) : (
+              filtered.map(repo => {
+                // Safely grab names based on DB or GitHub API
+                const repoName = repo.name || repo.repo_name;
+                const ownerName = repo.owner?.login || repo.owner || "Unknown";
+                const isSelected = selected.includes(repoName);
+
+                return (
+                  <button key={repo.id} onClick={() => onToggle(repoName)} className="w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors" style={{ background: isSelected ? selectedBackground : "transparent" }} onMouseEnter={event => { if (!isSelected) event.currentTarget.style.background = hover; }} onMouseLeave={event => event.currentTarget.style.background = isSelected ? selectedBackground : "transparent"}>
+                    <div className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-all" style={{ border: `1.5px solid ${isSelected ? "#7c6ff7" : border}`, background: isSelected ? "#7c6ff7" : "transparent" }}>
+                      {isSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                    </div>
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: LANGUAGE_COLORS[repo.language] || "#888" }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate" style={{ color: text }}>{repoName}</p>
+                      <p className="text-xs" style={{ color: muted, fontFamily: "monospace" }}>{ownerName} · {repo.language || "Unknown"}</p>
+                    </div>
+                    {repo.external && <Globe className="w-3 h-3 flex-shrink-0" style={{ color: muted }} />}
+                  </button>
+                );
+              })
+            )}
+          </div>
+          <div className="flex items-center justify-between px-3 py-2" style={{ borderTop: `1px solid ${border}`, background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)" }}>
+            <span className="text-xs" style={{ color: muted, fontFamily: "monospace" }}>{selected.length} selected</span>
+            {selected.length > 0 && <button onClick={() => selected.forEach(onToggle)} className="text-xs font-medium" style={{ color: "#7c6ff7" }}>Clear all</button>}
+          </div>
         </div>
-        <div className="max-h-56 overflow-y-auto scrollbar-hide py-1">
-          {filtered.length === 0 ? <p className="px-4 py-5 text-xs text-center" style={{ color: muted, fontFamily: "monospace" }}>No repos found</p> : filtered.map(repo => {
-            const isSelected = selected.includes(repo.name);
-            return <button key={repo.id} onClick={() => onToggle(repo.name)} className="w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors" style={{ background: isSelected ? selectedBackground : "transparent" }} onMouseEnter={event => { if (!isSelected) event.currentTarget.style.background = hover; }} onMouseLeave={event => event.currentTarget.style.background = isSelected ? selectedBackground : "transparent"}>
-              <div className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-all" style={{ border: `1.5px solid ${isSelected ? "#7c6ff7" : border}`, background: isSelected ? "#7c6ff7" : "transparent" }}>{isSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}</div>
-              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: LANGUAGE_COLORS[repo.language] || "#888" }} />
-              <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate" style={{ color: text }}>{repo.name}</p><p className="text-xs" style={{ color: muted, fontFamily: "monospace" }}>{repo.owner} · {repo.language}</p></div>
-              {repo.external && <Globe className="w-3 h-3 flex-shrink-0" style={{ color: muted }} />}
-            </button>;
-          })}
-        </div>
-        <div className="flex items-center justify-between px-3 py-2" style={{ borderTop: `1px solid ${border}`, background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)" }}><span className="text-xs" style={{ color: muted, fontFamily: "monospace" }}>{selected.length} selected</span>{selected.length > 0 && <button onClick={() => selected.forEach(onToggle)} className="text-xs font-medium" style={{ color: "#7c6ff7" }}>Clear all</button>}</div>
-      </div>}
+      )}
     </div>
   );
 }

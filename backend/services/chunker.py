@@ -7,6 +7,7 @@ def chunker(data:dict):
     language = data['language']
     lines = content.split("\n")
     repo = data['repo']
+    owner = data['owner']
 
     start = 0
     overlap = 4
@@ -21,6 +22,7 @@ def chunker(data:dict):
         chunks.append({
             "chunk": "\n".join(piece),
             "chunk_index": chunk_index,
+            "owner":owner,
             "repo": repo,
             "path": file_path,
             "language": language,

@@ -6,7 +6,7 @@ export function ChatFeed({ active, isTyping, connected, isDark, text, card, bord
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hide">
       {active && active.messages.length > 0 ? (
-        <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
+        <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
           {active.messages.map((msg: any) => {
             const isUser = msg.role === "user";
             return (
@@ -53,7 +53,7 @@ export function ChatFeed({ active, isTyping, connected, isDark, text, card, bord
                 <Bot className="w-4 h-4" style={{ color: "#7c6ff7" }} />
               </div>
               <div className="px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-1.5" style={{ background: card, border: `1px solid ${border}` }}>
-                {[0, 1, 2].map(i => <span key={i} className="w-2 h-2 rounded-full animate-bounce" style={{ background: "#7c6ff7", animationDelay: `${i * 0.12}s`, opacity: 0.7 }} />)}
+                {[0, 1, 2].map(i => <span key={i} className="w-2 h-2 rounded-full animate-bounce" style={{ background: "#7c6ff7", animationDelay: `${i * 0.02}s`, opacity: 0.7 }} />)}
               </div>
             </div>
           )}

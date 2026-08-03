@@ -1,7 +1,7 @@
 import bcrypt
 from jose import jwt, JWTError
 from datetime import timedelta, timezone, datetime
-from fastapi import Cookie, HTTPException, Depends
+from fastapi import Cookie, HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 from db.session import get_db
 from models.models import User
@@ -33,12 +33,13 @@ def create_access_token(data: dict):
 
 
 def get_current_user(
+    request: Request,
     access_token: str | None= Cookie(default=None),
     db: Session = Depends(get_db)
 ):
     if not access_token:
         raise HTTPException(status_code=401,detail="Not authenticated")
-
+    
     try:
         payload = jwt.decode(
             access_token,
@@ -55,5 +56,5 @@ def get_current_user(
 
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
-
+    
     return user

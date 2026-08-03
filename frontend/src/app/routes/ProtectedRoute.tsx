@@ -9,7 +9,7 @@ export default function ProtectedRoute({
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <h1>Loading...</h1>;
+    return <div>Loading...</div>;
   }
 
   if (!user) {

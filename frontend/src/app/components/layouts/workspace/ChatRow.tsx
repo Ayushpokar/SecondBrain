@@ -25,7 +25,7 @@ export function ChatRow({ chat, isActive, isDark, text, muted, onSelect, onDelet
         <button onClick={event => onTogglePin(chat.id, event)} className="w-5 h-5 rounded flex items-center justify-center transition-colors" style={{ color: chat.pinned ? "#7c6ff7" : muted }} onMouseEnter={event => event.currentTarget.style.color = "#7c6ff7"} onMouseLeave={event => event.currentTarget.style.color = chat.pinned ? "#7c6ff7" : muted}>
           {chat.pinned ? <PinOff className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
         </button>
-        <button onClick={event => onDelete(chat.id, event)} className="w-5 h-5 rounded flex items-center justify-center transition-colors" style={{ color: muted }} onMouseEnter={event => event.currentTarget.style.color = "#f04343"} onMouseLeave={event => event.currentTarget.style.color = muted}>
+        <button onClick={event => {event.stopPropagation(); onDelete(chat.id, event)}} className="w-5 h-5 rounded flex items-center justify-center transition-colors" style={{ color: muted }} onMouseEnter={event => event.currentTarget.style.color = "#f04343"} onMouseLeave={event => event.currentTarget.style.color = muted}>
           <Trash2 className="w-3 h-3" />
         </button>
       </div>

@@ -12,6 +12,8 @@ def store_chuncks(chunks_list:list):
         documents.append(chunk['chunk'])
         metadatas.append({
             "repo": chunk['repo'],
+            "file_name": chunk['path'].split('/')[-1],
+            "owner":chunk['owner'],
             "path": chunk['path'],
             "language": chunk['language'],
             "chunk_index": chunk['chunk_index'],

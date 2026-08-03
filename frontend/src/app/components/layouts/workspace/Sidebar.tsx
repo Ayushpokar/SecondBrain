@@ -2,12 +2,23 @@ import { Plus, Search, Sun, Moon, Github, Settings } from "lucide-react";
 import { BrainLogo } from "../../shared/BrainLogo";
 import { ChatRow } from "./ChatRow";
 import type { Chat } from "../../../types";
+import { useNavigate } from "react-router";
 
 export function Sidebar({
-  isDark, setTheme, newChat, historyQ, setHistoryQ, pinnedChats, unpinnedChats, 
+  isDark, setTheme, newChat,repos, historyQ, setHistoryQ, pinnedChats, chats, 
   shownChats, activeId, setActiveId, deleteChat, togglePin, setShowRepos, 
   connected, setShowSettings, modelLabel, bg, card, border, text, muted, inputBg
 }: any) {
+  const navigate = useNavigate()
+  const handleSelectChat = (chatId: string) => {
+    // 1. Update the URL
+    navigate(`/c/${chatId}`);
+    
+    // 2. Update local state
+    setActiveId(chatId);
+    
+    // 3. On mobile, you might want to close the sidebar here
+  };
   return (
     <aside className="w-60 flex-shrink-0 flex flex-col" style={{ background: card, borderRight: `1px solid ${border}` }}>
       <div className="flex items-center justify-between px-4 py-4" style={{ borderBottom: `1px solid ${border}` }}>
@@ -45,7 +56,7 @@ export function Sidebar({
           </>
         )}
         <p className="text-xs px-2 pb-1 pt-2 font-semibold uppercase tracking-widest" style={{ color: muted }}>Recent</p>
-        {unpinnedChats.map((chat: Chat) => <ChatRow key={chat.id} chat={chat} isActive={chat.id === activeId} isDark={isDark} text={text} muted={muted} onSelect={() => setActiveId(chat.id)} onDelete={deleteChat} onTogglePin={togglePin} />)}
+        {chats.map((chat: Chat) => <ChatRow key={chat.id} chat={chat} isActive={chat.id === activeId} isDark={isDark} text={text} muted={muted} onSelect={() => handleSelectChat(chat.id)} onDelete={deleteChat} onTogglePin={togglePin} />)}
         {shownChats.length === 0 && <p className="text-xs text-center py-6" style={{ color: muted }}>No chats found</p>}
       </div>
 
@@ -53,7 +64,7 @@ export function Sidebar({
         <button onClick={() => setShowRepos(true)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors" style={{ color: muted }}>
           <Github className="w-4 h-4 flex-shrink-0" />
           <span>Repositories</span>
-          <span className="ml-auto text-xs font-mono px-1.5 py-0.5 rounded-md" style={{ background: "rgba(124,111,247,0.15)", color: "#a89ff9" }}>{connected.length}</span>
+          <span className="ml-auto text-xs font-mono px-1.5 py-0.5 rounded-md" style={{ background: "rgba(124,111,247,0.15)", color: "#a89ff9" }}>{repos}</span>
         </button>
         <button onClick={() => setShowSettings(true)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors" style={{ color: muted }}>
           <Settings className="w-4 h-4 flex-shrink-0" />

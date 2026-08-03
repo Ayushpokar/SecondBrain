@@ -3,17 +3,16 @@ import os
 import base64
 from pathlib import Path
 from dotenv import load_dotenv
+from schema import RepositoryRequest
+
 load_dotenv()
 token = os.environ.get('GITHUB_TOKEN')
-print(token)
 header = {
     'Authorization': f"Bearer {token}"
 }
 
-async def fetcher(detail):
+async def fetcher(github_url):
    
-    github_url= f"https://api.github.com/repos/{detail.owner}/{detail.repo_name}"
-
     async with httpx.AsyncClient() as client:
         response = await client.get(github_url,headers=header)
 
@@ -22,7 +21,7 @@ async def fetcher(detail):
     return response
 
 
-async def get_file_tree(detail:str, branch:str):
+async def get_file_tree(detail:RepositoryRequest, branch:str):
     url = f"https://api.github.com/repos/{detail.owner}/{detail.repo_name}/git/trees/{branch}?recursive=1"
     good_extension = ('.py', '.js', '.jsx', '.ts', '.tsx', '.html', '.go', '.java', '.yml', '.txt', '.php','.json', 'c++', 'c')
     bad_folder = (
@@ -72,6 +71,7 @@ async def get_file_tree(detail:str, branch:str):
             # if (i['path']).endswith(good_extension):
             data = {
                 "repo":detail.repo_name,
+                "owner":detail.owner,
                 "path": i['path'],
                 "size": i['size'],  
                 "url": i['url']
@@ -112,8 +112,10 @@ async def get_file_content(file:dict):
             return None    
         return {
             "repo": file['repo'],
+            "owner":file['owner'],
             "path": file['path'],
             "content": decoded_content,
-            "language": detect_language(file['path'])
+            "language": detect_language(file['path']),
+            "size": file['size']
         }
                    

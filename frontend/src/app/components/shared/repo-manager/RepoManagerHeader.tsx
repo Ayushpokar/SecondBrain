@@ -1,6 +1,6 @@
 import { Github, X } from "lucide-react";
 
-export function RepoManagerHeader({ connectedCount, onClose, isDark, border, text, muted }: any) {
+export function RepoManagerHeader({ user, connectedCount, onClose, isDark, border, text, muted }: any) {
   return (
     <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: `1px solid ${border}` }}>
       <div className="flex items-center gap-3">
@@ -9,7 +9,7 @@ export function RepoManagerHeader({ connectedCount, onClose, isDark, border, tex
         </div>
         <div>
           <p className="font-semibold text-sm" style={{ color: text }}>Repositories</p>
-          <p className="text-xs" style={{ color: muted, fontFamily: "monospace" }}>devraj · {connectedCount} connected</p>
+          <p className="text-xs" style={{ color: muted, fontFamily: "monospace" }}>{user.github_username || user.name} · {connectedCount} connected</p>
         </div>
       </div>
       <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style={{ color: muted }}
@@ -17,6 +17,6 @@ export function RepoManagerHeader({ connectedCount, onClose, isDark, border, tex
         onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
         <X className="w-4 h-4" />
       </button>
-    </div>
+    </div>  
   );
 }

@@ -1,10 +1,11 @@
-import { CheckCheck, Globe, Link } from "lucide-react";
+import { CheckCheck, Globe, Link, Loader2 } from "lucide-react";
 import type { Repo } from "../../../types";
 
 export function AddRepoForm({
-  urlInput, setUrlInput, urlError, urlSuccess, handleAddUrl, 
+  urlInput, setUrlInput, urlError, urlSuccess, handleAddUrl, isAdding, 
   repos, onToggle, cardBg, border, text, muted
 }: any) {
+
   const exampleUrls = ["https://github.com/vercel/next.js", "https://github.com/facebook/react", "https://github.com/microsoft/TypeScript"];
   const externalRepos = repos.filter((r: Repo) => r.external);
 
@@ -26,8 +27,16 @@ export function AddRepoForm({
             autoFocus
           />
         </div>
-        <button onClick={handleAddUrl} className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: "linear-gradient(135deg,#7c6ff7,#9b8ff9)" }}>
-          Add
+        <button onClick={handleAddUrl} disabled={!urlInput.trim() || isAdding} className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ background: "linear-gradient(135deg,#7c6ff7,#9b8ff9)" }}>
+          {isAdding ? (
+          <>
+            {/* 3. Show the loading animation! */}
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Indexing Repository...
+          </>
+        ) : (
+          "Add Repository"
+        )}
         </button>
       </div>
 

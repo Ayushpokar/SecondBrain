@@ -7,7 +7,9 @@ import {
 
 type User = {
   id: number;
-  name: string;
+  name: string | unknown;
+  email: string;
+  avatar_url: string;
   github_username: string;
 };
 
@@ -28,7 +30,7 @@ export function AuthProvider({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/me", {
+    fetch(`http://localhost:8000/api/me`, {
       credentials: "include",
     })
       .then(async (res) => {
